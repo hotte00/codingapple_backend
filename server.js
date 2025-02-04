@@ -3,16 +3,17 @@ const mongoose = require('mongoose');
 
 const app = express()
 
+app.use(express.static(__dirname + '/public'))
+app.set('view engine', 'ejs')
+
 mongoose.connect('mongodb://localhost:27017/forum', {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}).then(() => {
-    console.log('DB연결성공')
+}).then((client) => {
+    console.log('DB연결성공');
 }).catch((err) => {
     console.log(err)
 })
-
-app.use(express.static(__dirname + '/public'))
 
 // const { MongoClient } = require('mongodb');
 
@@ -35,6 +36,18 @@ app.get('/', (요청, 응답) => {
 
 app.get('/news', (요청, 응답) => {
     응답.send('비올듯ㅋㅋ')
+})
+
+app.get('/list', async (요청, 응답) => {
+    try {
+        const Post = mongoose.connection.collection('post');
+        let result = await Post.find().toArray();
+        console.log(result[6].title);
+        응답.send('DB에 있던 게시물')
+    } catch (error) {
+        console.error(error);
+        응답.status(500).send('DB 조회 중 오류 발생');
+    }
 })
 
 app.get('/shop', (요청, 응답) => {
