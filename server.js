@@ -38,15 +38,9 @@ app.get('/news', (요청, 응답) => {
 })
 
 app.get('/list', async (요청, 응답) => {
-    try {
-        const Post = mongoose.connection.collection('post');
-        let result = await Post.find().toArray();
-        console.log(result[6].title);
-        응답.send('DB에 있던 게시물')
-    } catch (error) {
-        console.error(error);
-        응답.status(500).send('DB 조회 중 오류 발생');
-    }
+    let result = await db.collection('post').find().toArray()
+
+    응답.render('list.ejs', { posts : result })
 })
 
 app.get('/shop', (요청, 응답) => {
