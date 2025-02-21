@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 
 const app = express()
 
@@ -77,4 +77,9 @@ app.get('/about', (요청, 응답) => {
 
 app.get('/time', (요청,응답) => {
     응답.render('time.ejs', { data: new Date()})
+})
+
+app.get('/detail/:id', async(요청,응답)=>{
+    await db.collection('post').findOne({_id: new ObjectId(요청.params)})
+    응답.render('detail.ejs')
 })
