@@ -75,11 +75,19 @@ app.get('/about', (요청, 응답) => {
     응답.sendFile(__dirname + '/about.html')
 })
 
-app.get('/time', (요청,응답) => {
-    응답.render('time.ejs', { data: new Date()})
+app.get('/time', (요청, 응답) => {
+    응답.render('time.ejs', { data: new Date() })
 })
 
-app.get('/detail/:id', async(요청,응답)=>{
-    await db.collection('post').findOne({_id: new ObjectId(요청.params)})
-    응답.render('detail.ejs')
+app.get('/detail/:id', async (요청, 응답) => {
+    try {
+        let result = await db.collection('post').findOne({ _id: new ObjectId(요청.params.id) })
+        응답.render('detail.ejs', { result: result })
+        if (result == null) {
+            응답.status(404).send('응답 없음')
+        }
+    } catch (e) {
+        console.log(e)
+        응답.status(404).send('URL 잘못 입력하셨어요')
+    }
 })
