@@ -17,7 +17,8 @@
             <h4>
               <%= posts[i].title%>
             </h4>
-            <a href="/edit/<%=posts[i]._id %>">수정하기</a>
+            <a href="/edit/<%=posts[i]._id %>">✍</a>
+            <span class="delete">🗑</span>
             <p>
               <%= posts[i].content%>
             </p>
@@ -25,6 +26,15 @@
         </div>
         <% } %>
     </div>
+
+    <script>
+      document.querySelectorAll('.delete')[0]
+        .addEventListener('click', function () {
+          fetch('/delete?_id=' + '<%=posts[0]._id %>', {
+            method: 'DELETE',
+          })
+        })
+    </script>
 </body>
 
 </html>

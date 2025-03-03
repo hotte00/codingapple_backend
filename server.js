@@ -1,10 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { MongoClient } = require('mongodb');
-const { ObjectId } = require('bson');
+const { ObjectId } = require('mongodb');
+const methodOverride = require('method-override');
 
 const app = express()
 
+app.use(methodOverride('_method'))
 app.use(express.static(__dirname + '/public'))
 app.set('view engine', 'ejs')
 app.use(express.json())
@@ -94,15 +96,48 @@ app.get('/detail/:id', async (요청, 응답) => {
 })
 
 app.get('/edit/:id', async (요청, 응답) => {
-    let result = await db.collection('post').findOne({ _id: new ObjectId(요청.params.id) })
-    console.log(result)
-    응답.render('edit.ejs', { result: result })
-})
+    try {
+        const id = new ObjectId(요청.params.id);
+        let result = await db.collection('post').findOne({ _id: id });
+        if (result) {
+            응답.render('edit.ejs', { result: result });
+        } else {
+            응답.status(404).send('Post not found');
+        }
+    } catch (error) {
+        console.error("Error in /edit/:id route:", error);
+        응답.status(400).send('Invalid ID format');
+    }
+});
 
-app.post('/edit', async (요청, 응답) => {
-    await db.collection('post').updateOne({ _id: new ObjectId(요청.body.id) }, {
-        $set:
-            { title: 요청.body.title, content: 요청.body.content }
-    })
-    응답.redirect('/list')
+app.put('/edit', async (요청, 응답) => {
+    try {
+        const id = new ObjectId(요청.body.id);
+        const updateResult = await db.collection('post').updateOne(
+            { _id: id },
+            { $set: { title: 요청.body.title, content: 요청.body.content } }
+        );
+        if (updateResult.matchedCount > 0) {
+            응답.redirect('/list');
+        } else {
+            응답.status(404).send('Post not found');
+        }
+    } catch (error) {
+        console.error("Error in /edit route:", error);
+        응답.status(400).send('Invalid ID format or update failed');
+    }
+});
+
+app.delete('/delete', async (요청, 응답) => {
+    try {
+        await db
+            .collection('post')
+            .deleteOne({ _id: new ObjectId(요청.query._id) }, function () {
+                console.log('삭제 성공');
+            })
+        응답.redirect('/list');
+    } catch (error) {
+        console.error("Error in /delete : ", error);
+        응답.status(500).send('서버 에러');
+    }
 })
