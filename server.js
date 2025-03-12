@@ -135,7 +135,7 @@ app.delete('/delete', async (요청, 응답) => {
             .deleteOne({ _id: new ObjectId(요청.query._id) }, function () {
                 console.log('삭제 성공');
             })
-        응답.redirect('/list');
+        응답.send('삭제완료');
     } catch (error) {
         console.error("Error in /delete : ", error);
         응답.status(500).send('서버 에러');
